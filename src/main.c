@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include "rblaster.h"
@@ -103,9 +104,9 @@ void rb_app_handle_events(struct rb_app *app) {
 
 float rotation = 0.0f;
 struct RB_Triangle original_triangle = {
-	.v0 = (struct RB_Vec2){ 20, 20 },
-	.v1 = (struct RB_Vec2){ 70, 50 },
-	.v2 = (struct RB_Vec2){ 30, 80 },
+	.v0 = { .x = 20, .y = 20 },
+	.v1 = { .x = 70, .y = 50 },
+	.v2 = { .x = 30, .y = 80 },
 };
 
 void main_loop(void* arg) {
@@ -114,8 +115,9 @@ void main_loop(void* arg) {
 
 	Uint64 now = SDL_GetPerformanceCounter();
 	double delta_time = (double)(now - app->old_time) / SDL_GetPerformanceFrequency();
+	app->old_time = now;
 
-	rotation += delta_time * 0.1f;
+	rotation += delta_time * 10.0f;
 	struct RB_Triangle triangle = original_triangle;
 	struct RB_Vec2 screen_center = {
 		.x = WINDOW_WIDTH  / 2,

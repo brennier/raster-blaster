@@ -1,6 +1,6 @@
 TARGET = raster_blaster
 CFLAGS = -std=c99 -pedantic-errors -Wall
-LFLAGS = $(shell pkg-config --libs sdl3)
+LFLAGS = $(shell pkg-config --libs sdl3) -lm
 INCLUDES = -I src $(shell pkg-config --cflags sdl3)
 
 BIN_DIR    = bin
