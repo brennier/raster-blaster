@@ -30,6 +30,8 @@ struct RB_Canvas {
 struct RB_Canvas *rb_canvas_create(int height, int width);
 void rb_canvas_free(struct RB_Canvas *canvas);
 
-void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *triangle);
+void rb_clear_canvas(struct RB_Canvas *canvas);
+void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t);
+void rb_rotate_triangle(struct RB_Triangle *t, struct RB_Vec2 center, float angle);
 
 #endif // RASTER_BLASTER_H

@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
+#include <string.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 #define COLOR_RED (struct RB_Color){ .a = 255, .r = 255 }
 #define COLOR_BLUE (struct RB_Color){ .a = 255, .b = 255 }
@@ -26,6 +32,11 @@ struct RB_Canvas *rb_canvas_create(int width, int height) {
 void rb_canvas_free(struct RB_Canvas *canvas) {
 	free(canvas->pixels);
 	free(canvas);
+}
+
+void rb_clear_canvas(struct RB_Canvas *canvas) {
+	size_t canvas_size = canvas->height * canvas->width * sizeof(struct RB_Color);
+	memset(canvas->pixels, 0, canvas_size);
 }
 
 static inline int rb_max(int a, int b, int c) {
@@ -55,6 +66,26 @@ static inline struct RB_Vec2 rb_vec2_sub(struct RB_Vec2 u, struct RB_Vec2 v) {
 		.x = u.x - v.x,
 		.y = u.y - v.y
 	};
+}
+
+float rb_deg_to_rad(float degrees) {
+	return degrees * (M_PI / 180.0);
+}
+
+void rb_rotate_point(struct RB_Vec2 *p, struct RB_Vec2 center, float angle) {
+	int x = p->x - center.x;
+	int y = p->y - center.y;
+	float radians = rb_deg_to_rad(angle);
+	int new_x = x * cos(radians) - y * sin(radians);
+	int new_y = x * sin(radians) + y * cos(radians);
+	p->x = new_x + center.x;
+	p->y = new_y + center.y;
+}
+
+void rb_rotate_triangle(struct RB_Triangle *t, struct RB_Vec2 center, float angle) {
+	rb_rotate_point(&t->v0, center, angle);
+	rb_rotate_point(&t->v1, center, angle);
+	rb_rotate_point(&t->v2, center, angle);
 }
 
 void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {

@@ -101,12 +101,29 @@ void rb_app_handle_events(struct rb_app *app) {
 	}
 }
 
+float rotation = 0.0f;
+struct RB_Triangle original_triangle = {
+	.v0 = (struct RB_Vec2){ 20, 20 },
+	.v1 = (struct RB_Vec2){ 70, 50 },
+	.v2 = (struct RB_Vec2){ 30, 80 },
+};
+
 void main_loop(void* arg) {
 	struct rb_app *app = (struct rb_app *)arg;
 	rb_app_handle_events(app);
 
-	/* Uint64 now = SDL_GetPerformanceCounter(); */
-	/* double delta_time = (double)(now - app->old_time) / SDL_GetPerformanceFrequency(); */
+	Uint64 now = SDL_GetPerformanceCounter();
+	double delta_time = (double)(now - app->old_time) / SDL_GetPerformanceFrequency();
+
+	rotation += delta_time * 0.1f;
+	struct RB_Triangle triangle = original_triangle;
+	struct RB_Vec2 screen_center = {
+		.x = WINDOW_WIDTH  / 2,
+		.y = WINDOW_HEIGHT / 2
+	};
+	rb_clear_canvas(app->rb_canvas);
+	rb_rotate_triangle(&triangle, screen_center, rotation);
+	rb_draw_triangle(app->rb_canvas, &triangle);
 
 	size_t canvas_row_size = WINDOW_WIDTH * sizeof(uint32_t);
 	SDL_UpdateTexture(app->screen_texture, NULL, app->rb_canvas->pixels, canvas_row_size);
@@ -118,13 +135,6 @@ int main(int argc, char *argv[]) {
 	struct rb_app app = { 0 };
 	rb_app_setup(&app);
 	printf("Application started successfully\n");
-
-	struct RB_Triangle triangle = {
-		.v0 = (struct RB_Vec2){ 20, 20 },
-		.v1 = (struct RB_Vec2){ 70, 50 },
-		.v2 = (struct RB_Vec2){ 30, 80 },
-	};
-	rb_draw_triangle(app.rb_canvas, &triangle);
 
 	while (true) main_loop(&app);
 
