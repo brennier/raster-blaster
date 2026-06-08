@@ -119,6 +119,13 @@ int main(int argc, char *argv[]) {
 	rb_app_setup(&app);
 	printf("Application started successfully\n");
 
+	struct RB_Triangle triangle = {
+		.v0 = (struct RB_Vec2){ 20, 20 },
+		.v1 = (struct RB_Vec2){ 70, 50 },
+		.v2 = (struct RB_Vec2){ 30, 80 },
+	};
+	rb_draw_triangle(app.rb_canvas, &triangle);
+
 	while (true) main_loop(&app);
 
 	rb_app_cleanup(&app);
