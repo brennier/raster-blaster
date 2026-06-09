@@ -109,9 +109,9 @@ struct RB_Triangle original_triangle1 = {
 	.v2 = { .x = 80, .y = 150 },
 };
 struct RB_Triangle original_triangle2 = {
-	.v0 = { .x = 50, .y = 50 },
-	.v1 = { .x = 150, .y = 75 },
-	.v2 = { .x = 150, .y = 120 },
+	.v0 = { .x = 150, .y = 120 },
+	.v1 = { .x = 50, .y = 50 },
+	.v2 = { .x = 150, .y = 75 },
 };
 
 void main_loop(void* arg) {

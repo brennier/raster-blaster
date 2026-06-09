@@ -127,27 +127,35 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 		);
 
 	// Compute the w0 starts and the x/y deltas
-	int w0_start   = rb_vec2_cross(t->v0, t->v1);
 	int w0_delta_x = t->v0.y - t->v1.y;
 	int w0_delta_y = t->v1.x - t->v0.x;
+	int w0_start   = rb_vec2_cross(t->v0, t->v1);
 	w0_start += min_x * w0_delta_x;
 	w0_start += min_y * w0_delta_y;
 
+	// Compute the w1 starts and the x/y deltas
+	int w1_delta_x = t->v1.y - t->v2.y;
+	int w1_delta_y = t->v2.x - t->v1.x;
+	int w1_start   = rb_vec2_cross(t->v1, t->v2);
+	w1_start += min_x * w1_delta_x;
+	w1_start += min_y * w1_delta_y;
+
+	// Compute the w1 starts and the x/y deltas
+	int w2_delta_x = t->v2.y - t->v0.y;
+	int w2_delta_y = t->v0.x - t->v2.x;
+	int w2_start   = rb_vec2_cross(t->v2, t->v0);
+	w2_start += min_x * w2_delta_x;
+	w2_start += min_y * w2_delta_y;
+
 	for (int y = min_y; y <= max_y; y++) {
-		int w0 = w0_start + (y - min_y) * w0_delta_y;
+		int w0 = w0_start;
+		int w1 = w1_start;
+		int w2 = w2_start;
 		for (int x = min_x; x <= max_x; x++)
 		{
-			struct RB_Vec2 p = { .x = x, .y = y };
 			w0 += w0_delta_x;
-			/* int w0 = rb_vec2_cross( */
-				/* rb_vec2_sub(t->v1, t->v0), rb_vec2_sub(p, t->v0) */
-				/* ); */
-			int w1 = rb_vec2_cross(
-				rb_vec2_sub(t->v2, t->v1), rb_vec2_sub(p, t->v1)
-				);
-			int w2 = rb_vec2_cross(
-				rb_vec2_sub(t->v0, t->v2), rb_vec2_sub(p, t->v2)
-				);
+			w1 += w1_delta_x;
+			w2 += w2_delta_x;
 			struct RB_Color color = {
 				.r = 255 * w0 / double_area,
 				.g = 255 * w1 / double_area,
@@ -159,5 +167,8 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 				rb_draw_pixel(canvas, x, y, color);
 			}
 		}
+		w0_start += w0_delta_y;
+		w1_start += w1_delta_y;
+		w2_start += w2_delta_y;
 	}
 }
