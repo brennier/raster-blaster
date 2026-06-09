@@ -93,6 +93,10 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	int min_y = rb_min(t->v0.y, t->v1.y, t->v2.y);
 	int max_x = rb_max(t->v0.x, t->v1.x, t->v2.x);
 	int max_y = rb_max(t->v0.y, t->v1.y, t->v2.y);
+	int double_area = rb_vec2_cross(
+		rb_vec2_sub(t->v1, t->v0),
+		rb_vec2_sub(t->v2, t->v0)
+		);
 
 	for (int y = min_y; y <= max_y; y++)
 	for (int x = min_x; x <= max_x; x++)
@@ -107,9 +111,15 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 		int w2 = rb_vec2_cross(
 			rb_vec2_sub(t->v0, t->v2), rb_vec2_sub(p, t->v2)
 			);
+		struct RB_Color color = {
+			.r = 255 * w0 / double_area,
+			.g = 255 * w1 / double_area,
+			.b = 255 * w2 / double_area,
+			.a = 255,
+		};
 		bool inside_triangle = w0 > 0 && w1 > 0 && w2 > 0;
 		if (inside_triangle) {
-			rb_draw_pixel(canvas, x, y, COLOR_RED);
+			rb_draw_pixel(canvas, x, y, color);
 		}
 	}
 }
