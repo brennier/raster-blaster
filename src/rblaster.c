@@ -89,10 +89,19 @@ void rb_rotate_triangle(struct RB_Triangle *t, struct RB_Vec2 center, float angl
 }
 
 void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
+	// Compute the bounding box of the triangle
 	int min_x = rb_min(t->v0.x, t->v1.x, t->v2.x);
 	int min_y = rb_min(t->v0.y, t->v1.y, t->v2.y);
 	int max_x = rb_max(t->v0.x, t->v1.x, t->v2.x);
 	int max_y = rb_max(t->v0.y, t->v1.y, t->v2.y);
+
+	// Clamp to the dimensions of the canvas
+	if (min_x < 0) min_x = 0;
+	if (min_y < 0) min_y = 0;
+	if (max_x > canvas->width) max_x = canvas->width - 1;
+	if (max_y > canvas->height) max_y = canvas->height - 1;
+
+	// Computes the area of the triangle times 2 (used for Gouraud shading)
 	int double_area = rb_vec2_cross(
 		rb_vec2_sub(t->v1, t->v0),
 		rb_vec2_sub(t->v2, t->v0)

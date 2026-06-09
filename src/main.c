@@ -5,9 +5,9 @@
 #include "rblaster.h"
 
 #define WINDOW_TITLE  "Raster Blaster"
-#define WINDOW_SCALE  5
-#define WINDOW_WIDTH  100
-#define WINDOW_HEIGHT 100
+#define WINDOW_SCALE  2
+#define WINDOW_WIDTH  320
+#define WINDOW_HEIGHT 240
 #define APP_VERSION   "0.1"
 
 struct rb_app {
@@ -104,9 +104,9 @@ void rb_app_handle_events(struct rb_app *app) {
 
 float rotation = 0.0f;
 struct RB_Triangle original_triangle = {
-	.v0 = { .x = 20, .y = 20 },
-	.v1 = { .x = 70, .y = 50 },
-	.v2 = { .x = 30, .y = 80 },
+	.v0 = { .x = 50, .y = 50 },
+	.v1 = { .x = 150, .y = 120 },
+	.v2 = { .x = 80, .y = 150 },
 };
 
 void main_loop(void* arg) {
