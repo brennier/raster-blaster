@@ -15,6 +15,13 @@ struct RB_Vec2 {
 	int y;
 };
 
+struct RB_Mat2 {
+	float x11;
+	float x12;
+	float x21;
+	float x22;
+};
+
 struct RB_Triangle {
 	struct RB_Vec2 v0;
 	struct RB_Vec2 v1;

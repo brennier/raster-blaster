@@ -72,20 +72,39 @@ float rb_deg_to_rad(float degrees) {
 	return degrees * (M_PI / 180.0);
 }
 
-void rb_rotate_point(struct RB_Vec2 *p, struct RB_Vec2 center, float angle) {
-	int x = p->x - center.x;
-	int y = p->y - center.y;
+void rb_apply_matrix(const struct RB_Mat2 *matrix, struct RB_Vec2 *vector) {
+	int x = vector->x;
+	int y = vector->y;
+	vector->x = (matrix->x11 * x + matrix->x12 * y);
+	vector->y = (matrix->x21 * x + matrix->x22 * y);
+}
+
+void rb_rotate_point(struct RB_Vec2 *point,
+		     const struct RB_Mat2 *rotation_matrix,
+		     struct RB_Vec2 origin) {
+	point->x -= origin.x;
+	point->y -= origin.y;
+	rb_apply_matrix(rotation_matrix, point);
+	point->x += origin.x;
+	point->y += origin.y;
+}
+
+struct RB_Mat2 rb_rotation_matrix(float angle) {
 	float radians = rb_deg_to_rad(angle);
-	int new_x = x * cos(radians) - y * sin(radians);
-	int new_y = x * sin(radians) + y * cos(radians);
-	p->x = new_x + center.x;
-	p->y = new_y + center.y;
+	double c = cos(radians);
+	double s = sin(radians);
+	struct RB_Mat2 matrix = {
+		.x11 = c, .x12 = -s,
+		.x21 = s, .x22 =  c,
+	};
+	return matrix;
 }
 
 void rb_rotate_triangle(struct RB_Triangle *t, struct RB_Vec2 center, float angle) {
-	rb_rotate_point(&t->v0, center, angle);
-	rb_rotate_point(&t->v1, center, angle);
-	rb_rotate_point(&t->v2, center, angle);
+	struct RB_Mat2 rotation_matrix = rb_rotation_matrix(angle);
+	rb_rotate_point(&t->v0, &rotation_matrix, center);
+	rb_rotate_point(&t->v1, &rotation_matrix, center);
+	rb_rotate_point(&t->v2, &rotation_matrix, center);
 }
 
 void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
@@ -98,7 +117,7 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	// Clamp to the dimensions of the canvas
 	if (min_x < 0) min_x = 0;
 	if (min_y < 0) min_y = 0;
-	if (max_x > canvas->width) max_x = canvas->width - 1;
+	if (max_x > canvas->width)  max_x = canvas->width  - 1;
 	if (max_y > canvas->height) max_y = canvas->height - 1;
 
 	// Computes the area of the triangle times 2 (used for Gouraud shading)
