@@ -151,19 +151,18 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 		int w0 = w0_start;
 		int w1 = w1_start;
 		int w2 = w2_start;
-		for (int x = min_x; x <= max_x; x++)
-		{
+		for (int x = min_x; x <= max_x; x++) {
 			w0 += w0_delta_x;
 			w1 += w1_delta_x;
 			w2 += w2_delta_x;
-			struct RB_Color color = {
-				.r = 255 * w0 / double_area,
-				.g = 255 * w1 / double_area,
-				.b = 255 * w2 / double_area,
-				.a = 255,
-			};
 			bool inside_triangle = w0 >= 0 && w1 >= 0 && w2 >= 0;
 			if (inside_triangle) {
+				struct RB_Color color = {
+					.r = 255 * w0 / double_area,
+					.g = 255 * w1 / double_area,
+					.b = 255 * w2 / double_area,
+					.a = 255,
+				};
 				rb_draw_pixel(canvas, x, y, color);
 			}
 		}
