@@ -126,7 +126,7 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 			.b = 255 * w2 / double_area,
 			.a = 255,
 		};
-		bool inside_triangle = w0 > 0 && w1 > 0 && w2 > 0;
+		bool inside_triangle = w0 >= 0 && w1 >= 0 && w2 >= 0;
 		if (inside_triangle) {
 			rb_draw_pixel(canvas, x, y, color);
 		}
