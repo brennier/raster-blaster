@@ -125,6 +125,7 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 		rb_vec2_sub(t->v1, t->v0),
 		rb_vec2_sub(t->v2, t->v0)
 		);
+	float color_scale_factor = 255.0f / double_area;
 
 	// Compute the w0 starts and the x/y deltas
 	int w0_delta_x = t->v0.y - t->v1.y;
@@ -158,9 +159,9 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 			bool inside_triangle = w0 >= 0 && w1 >= 0 && w2 >= 0;
 			if (inside_triangle) {
 				struct RB_Color color = {
-					.r = 255 * w0 / double_area,
-					.g = 255 * w1 / double_area,
-					.b = 255 * w2 / double_area,
+					.r = w0 * color_scale_factor,
+					.g = w1 * color_scale_factor,
+					.b = w2 * color_scale_factor,
 					.a = 255,
 				};
 				rb_draw_pixel(canvas, x, y, color);
