@@ -133,8 +133,8 @@ void main_loop(void* arg) {
 		.y = WINDOW_HEIGHT / 2
 	};
 	rb_clear_canvas(app->rb_canvas);
-	/* rb_rotate_triangle(&triangle1, screen_center, rotation); */
-	/* rb_rotate_triangle(&triangle2, screen_center, rotation); */
+	rb_rotate_triangle(&triangle1, screen_center, rotation);
+	rb_rotate_triangle(&triangle2, screen_center, rotation);
 	rb_draw_triangle(app->rb_canvas, &triangle1);
 	if (draw_triangle_2) {
 		rb_draw_triangle(app->rb_canvas, &triangle2);

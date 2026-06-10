@@ -165,23 +165,22 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	int w2_delta_y = t->v0.x - t->v2.x;
 
 	// Compute the edge biases to prevent overlap
-	w0_start += (is_top_or_left(t->v0, t->v1) ? 0 : -1);
-	w1_start += (is_top_or_left(t->v1, t->v2) ? 0 : -1);
-	w2_start += (is_top_or_left(t->v2, t->v0) ? 0 : -1);
+	if (is_top_or_left(t->v0, t->v1)) w0_start += 1;
+	if (is_top_or_left(t->v1, t->v2)) w1_start += 1;
+	if (is_top_or_left(t->v2, t->v0)) w2_start += 1;
 
 	// Compute the starting and delta of each color
 	float scale_factor = (1u << (SHIFT+8)) / (float)double_area;
-	int bias = (1u << (SHIFT-1)); // equals 0.5
 
-	int red_start   = w0_start   * scale_factor + bias;
+	int red_start   = w0_start   * scale_factor;
 	int red_delta_x = w0_delta_x * scale_factor;
 	int red_delta_y = w0_delta_y * scale_factor;
 
-	int green_start   = w1_start   * scale_factor + bias;
+	int green_start   = w1_start   * scale_factor;
 	int green_delta_x = w1_delta_x * scale_factor;
 	int green_delta_y = w1_delta_y * scale_factor;
 
-	int blue_start   = w2_start   * scale_factor + bias;
+	int blue_start   = w2_start   * scale_factor;
 	int blue_delta_x = w2_delta_x * scale_factor;
 	int blue_delta_y = w2_delta_y * scale_factor;
 
@@ -193,7 +192,7 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 		int blue  = blue_start;
 		int green = green_start;
 		for (int x = min_x; x <= max_x; x++) {
-			bool inside_triangle = w0 >= 0 && w1 >= 0 && w2 >= 0;
+			bool inside_triangle = w0 > 0 && w1 > 0 && w2 > 0;
 			if (inside_triangle) {
 				struct RB_Color color = {
 					.r = red   >> SHIFT,
