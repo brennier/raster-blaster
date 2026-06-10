@@ -117,8 +117,8 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	// Clamp to the dimensions of the canvas
 	if (min_x < 0) min_x = 0;
 	if (min_y < 0) min_y = 0;
-	if (max_x > canvas->width)  max_x = canvas->width  - 1;
-	if (max_y > canvas->height) max_y = canvas->height - 1;
+	if (max_x >= canvas->width) max_x = canvas->width  - 1;
+	if (max_y >= canvas->height) max_y = canvas->height - 1;
 
 	struct RB_Vec2 xy_start = { min_x, min_y };
 
@@ -128,6 +128,10 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 		rb_vec2_sub(t->v2, t->v0)
 		);
 	float color_scale_factor = 255.0f / double_area;
+
+	// The triangle is facing away from the camera
+	if (double_area <= 0)
+		return;
 
 	// Compute the w0 starts and the x/y deltas
 	int w0_start = rb_vec2_cross(
@@ -158,9 +162,6 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 		int w1 = w1_start;
 		int w2 = w2_start;
 		for (int x = min_x; x <= max_x; x++) {
-			w0 += w0_delta_x;
-			w1 += w1_delta_x;
-			w2 += w2_delta_x;
 			bool inside_triangle = w0 >= 0 && w1 >= 0 && w2 >= 0;
 			if (inside_triangle) {
 				struct RB_Color color = {
@@ -171,6 +172,9 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 				};
 				rb_draw_pixel(canvas, x, y, color);
 			}
+			w0 += w0_delta_x;
+			w1 += w1_delta_x;
+			w2 += w2_delta_x;
 		}
 		w0_start += w0_delta_y;
 		w1_start += w1_delta_y;
