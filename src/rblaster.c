@@ -120,6 +120,8 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	if (max_x > canvas->width)  max_x = canvas->width  - 1;
 	if (max_y > canvas->height) max_y = canvas->height - 1;
 
+	struct RB_Vec2 xy_start = { min_x, min_y };
+
 	// Computes the area of the triangle times 2 (used for Gouraud shading)
 	int double_area = rb_vec2_cross(
 		rb_vec2_sub(t->v1, t->v0),
@@ -128,25 +130,28 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	float color_scale_factor = 255.0f / double_area;
 
 	// Compute the w0 starts and the x/y deltas
+	int w0_start = rb_vec2_cross(
+		rb_vec2_sub(t->v0, xy_start),
+		rb_vec2_sub(t->v1, xy_start)
+		);
 	int w0_delta_x = t->v0.y - t->v1.y;
 	int w0_delta_y = t->v1.x - t->v0.x;
-	int w0_start   = rb_vec2_cross(t->v0, t->v1);
-	w0_start += min_x * w0_delta_x;
-	w0_start += min_y * w0_delta_y;
 
 	// Compute the w1 starts and the x/y deltas
+	int w1_start = rb_vec2_cross(
+		rb_vec2_sub(t->v1, xy_start),
+		rb_vec2_sub(t->v2, xy_start)
+		);
 	int w1_delta_x = t->v1.y - t->v2.y;
 	int w1_delta_y = t->v2.x - t->v1.x;
-	int w1_start   = rb_vec2_cross(t->v1, t->v2);
-	w1_start += min_x * w1_delta_x;
-	w1_start += min_y * w1_delta_y;
 
-	// Compute the w1 starts and the x/y deltas
+	// Compute the w2 starts and the x/y deltas
+	int w2_start = rb_vec2_cross(
+		rb_vec2_sub(t->v2, xy_start),
+		rb_vec2_sub(t->v0, xy_start)
+		);
 	int w2_delta_x = t->v2.y - t->v0.y;
 	int w2_delta_y = t->v0.x - t->v2.x;
-	int w2_start   = rb_vec2_cross(t->v2, t->v0);
-	w2_start += min_x * w2_delta_x;
-	w2_start += min_y * w2_delta_y;
 
 	for (int y = min_y; y <= max_y; y++) {
 		int w0 = w0_start;
