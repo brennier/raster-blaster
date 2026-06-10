@@ -107,7 +107,18 @@ void rb_rotate_triangle(struct RB_Triangle *t, struct RB_Vec2 center, float angl
 	rb_rotate_point(&t->v2, &rotation_matrix, center);
 }
 
+#define SHIFT 12
 void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
+	// Computes the area of the triangle times 2 (used for shading)
+	int double_area = rb_vec2_cross(
+		rb_vec2_sub(t->v1, t->v0),
+		rb_vec2_sub(t->v2, t->v0)
+		);
+
+	// The triangle is facing away from the camera
+	if (double_area <= 0)
+		return;
+
 	// Compute the bounding box of the triangle
 	int min_x = rb_min(t->v0.x, t->v1.x, t->v2.x);
 	int min_y = rb_min(t->v0.y, t->v1.y, t->v2.y);
@@ -121,17 +132,6 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	if (max_y >= canvas->height) max_y = canvas->height - 1;
 
 	struct RB_Vec2 xy_start = { min_x, min_y };
-
-	// Computes the area of the triangle times 2 (used for Gouraud shading)
-	int double_area = rb_vec2_cross(
-		rb_vec2_sub(t->v1, t->v0),
-		rb_vec2_sub(t->v2, t->v0)
-		);
-	float color_scale_factor = 255.0f / double_area;
-
-	// The triangle is facing away from the camera
-	if (double_area <= 0)
-		return;
 
 	// Compute the w0 starts and the x/y deltas
 	int w0_start = rb_vec2_cross(
@@ -157,17 +157,36 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	int w2_delta_x = t->v2.y - t->v0.y;
 	int w2_delta_y = t->v0.x - t->v2.x;
 
+	// Compute the starting and delta of each color
+	float scale_factor = (1u << (SHIFT+8)) / (float)double_area;
+	int bias = (1u << (SHIFT-1)); // equals 0.5
+
+	int red_start   = w0_start   * scale_factor + bias;
+	int red_delta_x = w0_delta_x * scale_factor;
+	int red_delta_y = w0_delta_y * scale_factor;
+
+	int green_start   = w1_start   * scale_factor + bias;
+	int green_delta_x = w1_delta_x * scale_factor;
+	int green_delta_y = w1_delta_y * scale_factor;
+
+	int blue_start   = w2_start   * scale_factor + bias;
+	int blue_delta_x = w2_delta_x * scale_factor;
+	int blue_delta_y = w2_delta_y * scale_factor;
+
 	for (int y = min_y; y <= max_y; y++) {
 		int w0 = w0_start;
 		int w1 = w1_start;
 		int w2 = w2_start;
+		int red   = red_start;
+		int blue  = blue_start;
+		int green = green_start;
 		for (int x = min_x; x <= max_x; x++) {
 			bool inside_triangle = w0 >= 0 && w1 >= 0 && w2 >= 0;
 			if (inside_triangle) {
 				struct RB_Color color = {
-					.r = w0 * color_scale_factor,
-					.g = w1 * color_scale_factor,
-					.b = w2 * color_scale_factor,
+					.r = red   >> SHIFT,
+					.g = green >> SHIFT,
+					.b = blue  >> SHIFT,
 					.a = 255,
 				};
 				rb_draw_pixel(canvas, x, y, color);
@@ -175,9 +194,15 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 			w0 += w0_delta_x;
 			w1 += w1_delta_x;
 			w2 += w2_delta_x;
+			red   += red_delta_x;
+			green += green_delta_x;
+			blue  += blue_delta_x;
 		}
 		w0_start += w0_delta_y;
 		w1_start += w1_delta_y;
 		w2_start += w2_delta_y;
+		red_start   += red_delta_y;
+		green_start += green_delta_y;
+		blue_start  += blue_delta_y;
 	}
 }
