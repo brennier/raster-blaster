@@ -19,6 +19,19 @@ struct rb_app {
 	uint64_t old_time;
 };
 
+float rotation = 0.0f;
+bool draw_triangle_2 = false;
+struct RB_Triangle original_triangle1 = {
+	.v0 = { .x = 50, .y = 50 },
+	.v1 = { .x = 150, .y = 120 },
+	.v2 = { .x = 80, .y = 150 },
+};
+struct RB_Triangle original_triangle2 = {
+	.v0 = { .x = 150, .y = 120 },
+	.v1 = { .x = 50, .y = 50 },
+	.v2 = { .x = 150, .y = 75 },
+};
+
 bool rb_app_setup(struct rb_app *app) {
 	app->old_time = SDL_GetPerformanceCounter();
 
@@ -77,7 +90,9 @@ void rb_app_cleanup(struct rb_app *app) {
 
 void rb_app_handle_keypress(struct rb_app *app, SDL_Scancode scancode, bool is_pressed) {
 	switch (scancode) {
-
+	case SDL_SCANCODE_SPACE:
+		draw_triangle_2 = is_pressed;
+		break;
 	default: return;
 	}
 }
@@ -102,18 +117,6 @@ void rb_app_handle_events(struct rb_app *app) {
 	}
 }
 
-float rotation = 0.0f;
-struct RB_Triangle original_triangle1 = {
-	.v0 = { .x = 50, .y = 50 },
-	.v1 = { .x = 150, .y = 120 },
-	.v2 = { .x = 80, .y = 150 },
-};
-struct RB_Triangle original_triangle2 = {
-	.v0 = { .x = 150, .y = 120 },
-	.v1 = { .x = 50, .y = 50 },
-	.v2 = { .x = 150, .y = 75 },
-};
-
 void main_loop(void* arg) {
 	struct rb_app *app = (struct rb_app *)arg;
 	rb_app_handle_events(app);
@@ -130,10 +133,12 @@ void main_loop(void* arg) {
 		.y = WINDOW_HEIGHT / 2
 	};
 	rb_clear_canvas(app->rb_canvas);
-	rb_rotate_triangle(&triangle1, screen_center, rotation);
-	rb_rotate_triangle(&triangle2, screen_center, rotation);
+	/* rb_rotate_triangle(&triangle1, screen_center, rotation); */
+	/* rb_rotate_triangle(&triangle2, screen_center, rotation); */
 	rb_draw_triangle(app->rb_canvas, &triangle1);
-	rb_draw_triangle(app->rb_canvas, &triangle2);
+	if (draw_triangle_2) {
+		rb_draw_triangle(app->rb_canvas, &triangle2);
+	}
 
 	size_t canvas_row_size = WINDOW_WIDTH * sizeof(uint32_t);
 	SDL_UpdateTexture(app->screen_texture, NULL, app->rb_canvas->pixels, canvas_row_size);

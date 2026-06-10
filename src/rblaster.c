@@ -107,6 +107,13 @@ void rb_rotate_triangle(struct RB_Triangle *t, struct RB_Vec2 center, float angl
 	rb_rotate_point(&t->v2, &rotation_matrix, center);
 }
 
+// determines if an edge between to vertices is a left or top edge
+// this only works on a clockwise-oriented triangle
+static inline bool is_top_or_left(struct RB_Vec2 v1, struct RB_Vec2 v2) {
+	struct RB_Vec2 sub = rb_vec2_sub(v2, v1);
+	return (sub.y < 0) || (sub.y == 0 && sub.x > 0);
+}
+
 #define SHIFT 12
 void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 	// Computes the area of the triangle times 2 (used for shading)
@@ -156,6 +163,11 @@ void rb_draw_triangle(struct RB_Canvas *canvas, const struct RB_Triangle *t) {
 		);
 	int w2_delta_x = t->v2.y - t->v0.y;
 	int w2_delta_y = t->v0.x - t->v2.x;
+
+	// Compute the edge biases to prevent overlap
+	w0_start += (is_top_or_left(t->v0, t->v1) ? 0 : -1);
+	w1_start += (is_top_or_left(t->v1, t->v2) ? 0 : -1);
+	w2_start += (is_top_or_left(t->v2, t->v0) ? 0 : -1);
 
 	// Compute the starting and delta of each color
 	float scale_factor = (1u << (SHIFT+8)) / (float)double_area;
